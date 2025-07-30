@@ -4,6 +4,19 @@
 <dict>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
+		<key>NSCameraUsageDescription</key>
+<string>We need access to your camera to take a check-in photo.</string>
+<key>NSCameraUsageDescription</key>
+<string>We need camera access</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>We need location access</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to select images and documents for upload.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need access to save uploaded documents to your photo library.</string>
+	<key>NSDocumentsFolderUsageDescription</key>
+	<string>We need access to your documents folder to select PDF files for upload.</string>
+
 	<key>CFBundleDisplayName</key>
 	<string>ERPapps</string>
 	<key>CFBundleExecutable</key>

@@ -1,0 +1,25 @@
+const AppTheme = {
+	colors: {
+		primary: '#EF3349',
+		white: '#ffffff',
+		black: '#000000',
+		red: '#EF4444',
+		disabled: '#C9D3D9',
+		placeHolderTextColor: '#F6F8F9',
+		platformColor: '#C6C6C6',
+		buttonColor: '#000000',
+		textColor: '#595959',
+		borderColor: '#D1D5DB',
+		selectedColor: '#EAF5F2',
+		buttonSColor: '#474747',
+		switchColor: '#9CA3AF',
+		lightWhiteColor: '#f5f5f5',
+		lightPrimary: '#B5FFE8',
+		notificationBackground: '#EAF5F2',
+		errorBackgroundColor: '#F3EAEA',
+		Primary: '#30FEBF',
+		Secondary: '#E8F3FF',
+		Tertiary: '#A0FFE6',
+	},
+};
+export default AppTheme;

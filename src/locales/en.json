@@ -1,0 +1,115 @@
+{
+	"BUTTON": {
+		"SAVE_CHANGES": "Save Changes",
+		"SUBMIT": "Submit"
+	},
+	"FORM":{
+		"LABEL": {
+			"EMAIL": "Email",
+			"PASSWORD": "Password",
+			"NEWPASSWORD": "New Password",
+			"CONFIRMPASSWORD": "Confirm Password",
+			"FULLNAME": "Full Name"
+		},
+		"PLACEHOLDER": {
+			"EMAIL": "Enter your email",
+			"PASSWORD": "Enter your password",
+			"NEWPASSWORD": "Enter New Password",
+			"FULLNAME": "Enter Your Full name",
+			"CONFIRMPASSWORD": "Enter Your Confirm Password"
+		}
+	},
+	"LOGIN": {
+		"LOGIN_BTN": "Login",
+		"SIGN_UP_BTN": "Sign up",
+		"LABEL": {
+			"OR_LOGIN_WITH": "Or Login With",
+			"GOOGLE": "Google",
+			"APPLE": "Apple",
+			"NEW_TO_FIND_YA_FEET": "New to Find Ya Feet?",
+			"FINE_YA_FEET": "Find Ya Feet"
+		},
+		"FORGOT_PASSWORD": "Forgot password?",
+		"WELCOME_BACK": "Welcome Back",
+		"ERRORS": {
+			"EMPTY_EMAIL": "Email is required",
+			"INVALID_EMAIL": "Please enter valid email",
+			"EMPTY_PASSWORD": "Password is required",
+			"EMPTY_NEW_PASSWORD": "New password is required",
+			"INVALID_PASSWORD": "Password must be at least 8 characters",
+			"INVALID_NEW_PASSWORD": "New password must be at least 8 characters"
+		}
+	},
+	"SING_UP": {
+		"LABEL": {
+			"GET_STARTED": "Get Started",
+			"I_AGREE": "I agree to the",
+			"TERMS_OF_SERVICE": "Terms of service",
+			"OR_SIGN_UP_WITH": "Or Sign up With",
+			"ALREADY_HAVE_AN_ACCOUNT": "Already have an account?"
+		},
+		"ERRORS": {
+			"EMPTY_FULL_NAME": "Full name is required.",
+			"INVALID_FULL_NAME": "Full name must be at least 2 characters long.",
+			"EMPTY_CONFIRM_PASSWORD": "Confirm password is required.",
+			"PASSWORDS_NOT_MATCHING": "Passwords do not match.",
+			"ACCEPT_TERMS": "ACCEPT_TERMS"
+		}
+	},
+	"FORGOTPASSWORD": {
+		"LABEL": {
+			"FORGOT_PASSWORD": "Forgot Password",
+			"ENTER_EMAIL": "Enter your email account to reset your password"
+		},
+		"BUTTON": "Continue"
+	},
+	"RESETPASSWORD": {
+		"LABEL": {
+			"RESET_PASSWORD": "Reset Password"
+		},
+		"BUTTON": "Save",
+		"ERRORS": {
+			"EMPTY_PASSWORD": "Password is required.",
+			"INVALID_PASSWORD": "Password must be at least 8 characters long.",
+			"EMPTY_CONFIRM_PASSWORD": "Confirm password is required.",
+			"PASSWORDS_NOT_MATCHING": "Passwords do not match."
+		}
+	},
+	"PINSET": {
+		"LABEL": {
+			"SETUP_PIN": "Setup your PIN"
+		},
+		"BUTTON": "Next"
+	},
+	"HOME": {
+		"LOGOUT_BTN": "Logout"
+	},
+	"ONBOARDING": {
+		"LABEL": {
+			"STEP": "Step",
+			"LET_GET": "Let's Get to Know You!",
+			"INTERESTED": "What are you interested in?",
+			"FINISH": "Finish"
+		}
+	},
+	"SCREENTITLE": {
+		"TIPS": "Tool",
+		"TOOLS": "Toolbox Library",
+		"SETTINGS": "Settings",
+		"EDIT_PROFILE": "Edit Profile",
+		"CHANGE_PASSWORD": "Change your Password",
+		"NOTIFICATIONPREFERENCES": "Notification Preferences",
+		"OFFLINE_DOWNLOADS": "Offline Downloads",
+		"NOTIFICATION": "Notification"
+	},
+	"TOLOS": {
+		"POWERED_BY": "Powered by",
+		"CHALKIES": "Chalkies",
+		"INDIVIDUAL": "Individuals",
+		"CHALKIES_DESC": "mentors - educators - teachers - coaches",
+		"SPANNERS": "SPANNERS"
+	},
+	"TIPS": {
+		"TIPSTEXT": "When your mate is sharing something, resist the urge to jump in with solutions.Sometimes, blokes just need someone to listen.Ask a simple, How ya feeling about that ? and let him talk it out.You dont need to fix it—just being there and understanding where hes coming from can make all the difference.s"
+	}
+}

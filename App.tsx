@@ -1,28 +1,28 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect, useState } from 'react';
+import { Provider } from 'react-redux';
+import { store } from './src/store';
+import AppNavigator from './src/navigation/AppNavigator';
+import { I18nextProvider } from 'react-i18next';
+import i18n from './src/locales/i18n';
+import { View } from 'react-native';
 
-import { NewAppScreen } from '@react-native/new-app-screen';
-import { StatusBar, StyleSheet, useColorScheme, View } from 'react-native';
+const App = () => {
+  const [isLoading, setIsLoading] = useState(true);
 
-function App() {
-  const isDarkMode = useColorScheme() === 'dark';
+  useEffect(() => {
+    i18n.init().then(() => setIsLoading(false)); // Ensure i18n is initialized before rendering
+  }, []);
 
+  if (isLoading) return null;
   return (
-    <View style={styles.container}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} />
-      <NewAppScreen templateFileName="App.tsx" />
-    </View>
+    <Provider store={store}>
+      <View style={{ flex: 1 }}>
+        <I18nextProvider i18n={i18n}>
+          <AppNavigator />
+        </I18nextProvider>
+      </View>
+    </Provider>
   );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-});
+};
 
 export default App;
