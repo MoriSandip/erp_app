@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Switch, Alert, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Switch, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 interface SettingItem {
@@ -14,6 +14,7 @@ interface SettingItem {
 
 const SettingsScreen = () => {
     const navigation = useNavigation();
+    const [isLoading, setIsLoading] = useState(true);
     const [settings, setSettings] = useState<SettingItem[]>([
         { id: '1', title: 'Push Notifications', subtitle: 'Receive alerts and updates', icon: '🔔', type: 'toggle', value: true },
         { id: '2', title: 'Email Notifications', subtitle: 'Get updates via email', icon: '📧', type: 'toggle', value: false },
@@ -28,6 +29,15 @@ const SettingsScreen = () => {
         { id: '11', title: 'Help & Support', subtitle: 'Get help and contact support', icon: '❓', type: 'navigate', action: 'Support' },
         { id: '12', title: 'Logout', subtitle: 'Sign out of your account', icon: '🚪', type: 'action', action: 'Logout' },
     ]);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const handleToggle = (id: string) => {
         setSettings(prevSettings =>
@@ -113,12 +123,17 @@ const SettingsScreen = () => {
                 <View style={{ width: 40 }} />
             </View>
 
-            {/* Scrollable Content */}
-            <ScrollView
-                style={styles.scrollContainer}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.scrollContent}
-            >
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#673AB7" />
+                    <Text style={styles.loaderText}>Loading settings...</Text>
+                </View>
+            ) : (
+                <ScrollView
+                    style={styles.scrollContainer}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.scrollContent}
+                >
                 {/* User Profile Card */}
                 <View style={styles.profileCard}>
                     <View style={styles.profileHeader}>
@@ -200,7 +215,8 @@ const SettingsScreen = () => {
 
                 {/* Bottom spacing for better scroll experience */}
                 <View style={styles.bottomSpacing} />
-            </ScrollView>
+                </ScrollView>
+            )}
         </View>
     );
 };
@@ -220,7 +236,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
     },
     backBtn: {
-        padding: 8,
+        padding: 0,
     },
     backIcon: {
         fontSize: 22,
@@ -353,6 +369,18 @@ const styles = StyleSheet.create({
     },
     bottomSpacing: {
         height: 20,
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
     },
 });
 

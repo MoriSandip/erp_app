@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Pressable, Alert, ScrollView } from 'react-native';
+import { View, Text, FlatList, TextInput, TouchableOpacity, StyleSheet, Modal, Pressable, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import moment from 'moment';
 
@@ -19,10 +19,20 @@ const VisitScreen = () => {
     const [selectedFilter, setSelectedFilter] = useState('All');
     const [modalVisible, setModalVisible] = useState(false);
     const [editVisit, setEditVisit] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         applyFilters();
     }, [search, selectedFilter, visits]);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const applyFilters = () => {
         let filtered = [...visits];
@@ -98,9 +108,16 @@ const VisitScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Quick Stats */}
-            <View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsContainer}>
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#673AB7" />
+                    <Text style={styles.loaderText}>Loading visits...</Text>
+                </View>
+            ) : (
+                <>
+                    {/* Quick Stats */}
+                    <View>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsContainer}>
                     <View style={[styles.statCard, { borderLeftColor: '#673AB7' }]}>
                         <Text style={[styles.statValue, { color: '#673AB7' }]}>{visits.length}</Text>
                         <Text style={styles.statLabel}>Total Visits</Text>
@@ -204,6 +221,8 @@ const VisitScreen = () => {
                     onCancel={() => { setModalVisible(false); setEditVisit(null); }}
                 />
             </Modal>
+                </>
+            )}
         </View>
     );
 };
@@ -244,10 +263,11 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
     },
     backBtn: {
-        padding: 8,
+        padding: 0,
     },
     backIcon: {
         fontSize: 22,
+        
         color: '#222',
     },
     headerTitle: {
@@ -419,6 +439,18 @@ const styles = StyleSheet.create({
     saveBtn: {
         color: '#1976d2',
         fontWeight: 'bold'
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
     },
 });
 

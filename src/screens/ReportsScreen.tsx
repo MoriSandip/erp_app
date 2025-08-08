@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ScrollView, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 interface Report {
@@ -15,6 +15,16 @@ interface Report {
 const ReportsScreen = () => {
     const navigation = useNavigation();
     const [selectedCategory, setSelectedCategory] = useState('All');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const [reports] = useState<Report[]>([
         { id: '1', title: 'Sales Performance Report', description: 'Monthly sales analysis and trends', category: 'Sales', icon: '📊', lastUpdated: '2024-01-22', status: 'Available' },
@@ -91,17 +101,24 @@ const ReportsScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Quick Stats */}
-            <View style={{ height: 120 }}>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsContainer}>
-                    {quickStats.map((stat, index) => (
-                        <View key={index} style={[styles.statCard, { borderLeftColor: stat.color }]}>
-                            <Text style={[styles.statValue, { color: stat.color }]}>{stat.value}</Text>
-                            <Text style={styles.statLabel}>{stat.title}</Text>
-                        </View>
-                    ))}
-                </ScrollView>
-            </View>
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#673AB7" />
+                    <Text style={styles.loaderText}>Loading reports...</Text>
+                </View>
+            ) : (
+                <>
+                    {/* Quick Stats */}
+                    <View style={{ height: 120 }}>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsContainer}>
+                            {quickStats.map((stat, index) => (
+                                <View key={index} style={[styles.statCard, { borderLeftColor: stat.color }]}>
+                                    <Text style={[styles.statValue, { color: stat.color }]}>{stat.value}</Text>
+                                    <Text style={styles.statLabel}>{stat.title}</Text>
+                                </View>
+                            ))}
+                        </ScrollView>
+                    </View>
 
             {/* Category Filter */}
             <View style={styles.filterContainer}>
@@ -129,14 +146,16 @@ const ReportsScreen = () => {
                 />
             </View>
 
-            {/* Reports List */}
-            <FlatList
-                data={filteredReports}
-                renderItem={renderReportItem}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-            />
+                                {/* Reports List */}
+                    <FlatList
+                        data={filteredReports}
+                        renderItem={renderReportItem}
+                        keyExtractor={item => item.id}
+                        contentContainerStyle={styles.listContainer}
+                        showsVerticalScrollIndicator={false}
+                    />
+                </>
+            )}
         </View>
     );
 };
@@ -156,7 +175,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
     },
     backBtn: {
-        padding: 8,
+        padding: 0,
     },
     backIcon: {
         fontSize: 22,
@@ -216,7 +235,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         marginHorizontal: 4,
-        borderRadius: 20,
+        borderRadius: 8,
         backgroundColor: '#f5f5f5',
     },
     filterTabActive: {
@@ -297,6 +316,18 @@ const styles = StyleSheet.create({
     lastUpdated: {
         fontSize: 12,
         color: '#999',
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
     },
 });
 

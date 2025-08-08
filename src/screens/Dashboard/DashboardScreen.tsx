@@ -72,11 +72,11 @@ const DashboardScreen: React.FC = () => {
     }, [selectedRoomId, navigation]);
 
     const erpFeatures = [
-        { key: 'MyDashboard', label: 'My Dashboard', icon: '📊', screen: 'MyDashboard' },
-        { key: 'Calendar', label: 'Calendar', icon: '📅', screen: 'Calendar' },
-        { key: 'Attendance', label: 'Attendance', icon: '📝', screen: 'Attendance' },
-        { key: 'DocumentImport', label: 'Document Import', icon: '📄', screen: 'DocumentImport' },
-        { key: 'Retailer', label: 'Retailer', icon: '🏪', screen: 'Retailer' },
+        { key: 'MyDashboard', label: 'My ERP Dashboard', icon: '📊', screen: 'MyDashboard' },
+        { key: 'Calendar', label: 'my ERP Cala', icon: '📅', screen: 'Calendar' },
+        { key: 'Attendance', label: 'my erp Att endance', icon: '📝', screen: 'Attendance' },
+        { key: 'DocumentImport', label: 'my erp Document Import', icon: '📄', screen: 'DocumentImport' },
+        { key: 'Retailer', label: '', icon: '🏪', screen: 'Retailer' },
 
         { key: 'RetailerOrder', label: 'Retailer Order', icon: '🛒', screen: 'RetailerOrder' },
         { key: 'RetailerStock', label: 'Retailer Stock', icon: '📦', screen: 'RetailerStock' },
@@ -146,12 +146,15 @@ const DashboardScreen: React.FC = () => {
                                     borderBlockColor: '#fafafa'
                                 }}
                                 activeOpacity={0.8}
-                                onPress={() => navigation.navigate(item.screen as never)}
+                                onPress={() => navigation.navigate(item.screen as never, {
+                                    rName: item.label
+                                })}
                             >
                                 <Text style={{ fontSize: 32, marginBottom: 8 }}>{item.icon}</Text>
                                 <Text style={{
                                     textAlign: 'center',
-                                    fontSize: 16, fontWeight: '600', color: '#222' }}>{item.label}</Text>
+                                    fontSize: 16, fontWeight: '600', color: '#222'
+                                }}>{item.label}</Text>
                             </TouchableOpacity>
                         )}
                     />

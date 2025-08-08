@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 interface Employee {
@@ -17,6 +17,16 @@ const EmployeeScreen = () => {
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedFilter, setSelectedFilter] = useState('All');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const [employees] = useState<Employee[]>([
         { id: '1', name: 'John Smith', position: 'Software Engineer', department: 'Engineering', email: 'john.smith@company.com', phone: '+1-555-0123', status: 'Active', avatar: '👨‍💻' },
@@ -94,78 +104,87 @@ const EmployeeScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Quick Stats */}
-            <View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsContainer}>
-                    <View style={[styles.statCard, { borderLeftColor: '#FF9800' }]}>
-                        <Text style={[styles.statValue, { color: '#FF9800' }]}>{totalEmployees}</Text>
-                        <Text style={styles.statLabel}>Total Employees</Text>
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#673AB7" />
+                    <Text style={styles.loaderText}>Loading employee data...</Text>
+                </View>
+            ) : (
+                <>
+                    {/* Quick Stats */}
+                    <View>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsContainer}>
+                            <View style={[styles.statCard, { borderLeftColor: '#FF9800' }]}>
+                                <Text style={[styles.statValue, { color: '#FF9800' }]}>{totalEmployees}</Text>
+                                <Text style={styles.statLabel}>Total Employees</Text>
+                            </View>
+                            <View style={[styles.statCard, { borderLeftColor: '#4CAF50' }]}>
+                                <Text style={[styles.statValue, { color: '#4CAF50' }]}>{activeEmployees}</Text>
+                                <Text style={styles.statLabel}>Active</Text>
+                            </View>
+                            <View style={[styles.statCard, { borderLeftColor: '#FF9800' }]}>
+                                <Text style={[styles.statValue, { color: '#FF9800' }]}>{employees.filter(emp => emp.status === 'On Leave').length}</Text>
+                                <Text style={styles.statLabel}>On Leave</Text>
+                            </View>
+                            <View style={[styles.statCard, { borderLeftColor: '#F44336' }]}>
+                                <Text style={[styles.statValue, { color: '#F44336' }]}>{employees.filter(emp => emp.status === 'Inactive').length}</Text>
+                                <Text style={styles.statLabel}>Inactive</Text>
+                            </View>
+                            <View
+                                style={{
+                                    height: 10,
+                                    width: 30,
+                                }}
+                            />
+                        </ScrollView>
                     </View>
-                    <View style={[styles.statCard, { borderLeftColor: '#4CAF50' }]}>
-                        <Text style={[styles.statValue, { color: '#4CAF50' }]}>{activeEmployees}</Text>
-                        <Text style={styles.statLabel}>Active</Text>
+
+                    {/* Search Bar */}
+                    <View style={styles.searchContainer}>
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="Search employees..."
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                        />
                     </View>
-                    <View style={[styles.statCard, { borderLeftColor: '#FF9800' }]}>
-                        <Text style={[styles.statValue, { color: '#FF9800' }]}>{employees.filter(emp => emp.status === 'On Leave').length}</Text>
-                        <Text style={styles.statLabel}>On Leave</Text>
+
+                    {/* Filter Tabs */}
+                    <View style={styles.filterContainer}>
+                        <FlatList
+                            data={filters}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[
+                                        styles.filterTab,
+                                        selectedFilter === item && styles.filterTabActive
+                                    ]}
+                                    onPress={() => setSelectedFilter(item)}
+                                >
+                                    <Text style={[
+                                        styles.filterText,
+                                        selectedFilter === item && styles.filterTextActive
+                                    ]}>
+                                        {item}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                            keyExtractor={item => item}
+                        />
                     </View>
-                    <View style={[styles.statCard, { borderLeftColor: '#F44336' }]}>
-                        <Text style={[styles.statValue, { color: '#F44336' }]}>{employees.filter(emp => emp.status === 'Inactive').length}</Text>
-                        <Text style={styles.statLabel}>Inactive</Text>
-                    </View>
-                    <View
-                        style={{
-                            height: 10,
-                            width: 30,
-                        }}
+
+                    {/* Employees List */}
+                    <FlatList
+                        data={filteredEmployees}
+                        renderItem={renderEmployeeItem}
+                        keyExtractor={item => item.id}
+                        contentContainerStyle={styles.listContainer}
+                        showsVerticalScrollIndicator={false}
                     />
-                </ScrollView>
-            </View>
-
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search employees..."
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                />
-            </View>
-
-            {/* Filter Tabs */}
-            <View style={styles.filterContainer}>
-                <FlatList
-                    data={filters}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[
-                                styles.filterTab,
-                                selectedFilter === item && styles.filterTabActive
-                            ]}
-                            onPress={() => setSelectedFilter(item)}
-                        >
-                            <Text style={[
-                                styles.filterText,
-                                selectedFilter === item && styles.filterTextActive
-                            ]}>
-                                {item}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
-                    keyExtractor={item => item}
-                />
-            </View>
-
-            {/* Employees List */}
-            <FlatList
-                data={filteredEmployees}
-                renderItem={renderEmployeeItem}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-            />
+                </>
+            )}
         </View>
     );
 };
@@ -185,7 +204,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
     },
     backBtn: {
-        padding: 8,
+        padding: 0,
     },
     backIcon: {
         fontSize: 22,
@@ -208,6 +227,18 @@ const styles = StyleSheet.create({
         fontSize: 24,
         color: '#fff',
         fontWeight: 'bold',
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
     },
     statsContainer: {
         padding: 16,
@@ -242,11 +273,12 @@ const styles = StyleSheet.create({
         backgroundColor: '#fff',
     },
     searchInput: {
-        height: 48,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 24,
+        borderColor: '#d8d6d6ff',
+        borderRadius: 8,
         paddingHorizontal: 16,
         fontSize: 16,
+        borderWidth: 1,
+        marginHorizontal: 0
     },
     filterContainer: {
         paddingVertical: 8,
@@ -258,7 +290,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         marginHorizontal: 4,
-        borderRadius: 20,
+        borderRadius: 8,
         backgroundColor: '#f5f5f5',
     },
     filterTabActive: {

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const daysShort = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -18,6 +18,16 @@ const CalendarScreen = () => {
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
     const [selectedDate, setSelectedDate] = useState(today.getDate());
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const daysInMonth = getDaysInMonth(currentMonth, currentYear);
     const firstDay = getFirstDayOfMonth(currentMonth, currentYear);
@@ -74,50 +84,60 @@ const CalendarScreen = () => {
                 <Text style={styles.headerTitle}>Calendar</Text>
                 <View style={{ width: 40 }} />
             </View>
-            {/* Calendar Header */}
-            <View style={styles.header}>
-                <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn}>
-                    <Text style={styles.navText}>{'<'}</Text>
-                </TouchableOpacity>
-                <Text style={styles.headerText}>
-                    {new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}
-                </Text>
-                <TouchableOpacity onPress={handleNextMonth} style={styles.navBtn}>
-                    <Text style={styles.navText}>{'>'}</Text>
-                </TouchableOpacity>
-            </View>
-            <View style={styles.daysRow}>
-                {daysShort.map((day) => (
-                    <Text key={day} style={styles.dayShort}>{day}</Text>
-                ))}
-            </View>
-            <FlatList
-                data={datesArray}
-                numColumns={7}
-                keyExtractor={(_, idx) => idx.toString()}
-                renderItem={({ item }) => (
-                    <TouchableOpacity
-                        disabled={item === null}
-                        style={[
-                            styles.dateCell,
-                            isToday(item) && styles.todayCell,
-                            isSelected(item) && styles.selectedCell,
-                        ]}
-                        onPress={() => item && setSelectedDate(item)}
-                    >
-                        <Text
-                            style={[
-                                styles.dateText,
-                                isToday(item) && styles.todayText,
-                                isSelected(item) && styles.selectedText,
-                            ]}
-                        >
-                            {item ? item : ''}
+            
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#673AB7" />
+                    <Text style={styles.loaderText}>Loading calendar...</Text>
+                </View>
+            ) : (
+                <>
+                    {/* Calendar Header */}
+                    <View style={styles.header}>
+                        <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn}>
+                            <Text style={styles.navText}>{'<'}</Text>
+                        </TouchableOpacity>
+                        <Text style={styles.headerText}>
+                            {new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long', year: 'numeric' })}
                         </Text>
-                    </TouchableOpacity>
-                )}
-                scrollEnabled={false}
-            />
+                        <TouchableOpacity onPress={handleNextMonth} style={styles.navBtn}>
+                            <Text style={styles.navText}>{'>'}</Text>
+                        </TouchableOpacity>
+                    </View>
+                    <View style={styles.daysRow}>
+                        {daysShort.map((day) => (
+                            <Text key={day} style={styles.dayShort}>{day}</Text>
+                        ))}
+                    </View>
+                    <FlatList
+                        data={datesArray}
+                        numColumns={7}
+                        keyExtractor={(_, idx) => idx.toString()}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity
+                                disabled={item === null}
+                                style={[
+                                    styles.dateCell,
+                                    isToday(item) && styles.todayCell,
+                                    isSelected(item) && styles.selectedCell,
+                                ]}
+                                onPress={() => item && setSelectedDate(item)}
+                            >
+                                <Text
+                                    style={[
+                                        styles.dateText,
+                                        isToday(item) && styles.todayText,
+                                        isSelected(item) && styles.selectedText,
+                                    ]}
+                                >
+                                    {item ? item : ''}
+                                </Text>
+                            </TouchableOpacity>
+                        )}
+                        scrollEnabled={false}
+                    />
+                </>
+            )}
         </View>
     );
 };
@@ -134,7 +154,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
         marginBottom: 12,
     },
-    backBtn: { padding: 8 },
+    backBtn: { padding: 0 },
     backIcon: { fontSize: 22, color: '#222' },
     headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#222' },
     headerText: { fontSize: 22, fontWeight: 'bold', color: '#222' },
@@ -162,6 +182,18 @@ const styles = StyleSheet.create({
     dateText: { fontSize: 16, color: '#222' },
     todayText: { fontWeight: 'bold', color: '#673AB7' },
     selectedText: { color: '#fff', fontWeight: 'bold' },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+    },
 });
 
 export default CalendarScreen;

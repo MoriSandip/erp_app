@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const dummyOrders = [
@@ -23,6 +23,16 @@ const RetailerOrderScreen = () => {
     const navigation = useNavigation();
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const openModal = (order: any) => {
         setSelectedOrder(order);
@@ -103,7 +113,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
     },
-    backBtn: { padding: 8 },
+    backBtn: { padding: 0 },
     backIcon: { fontSize: 22, color: '#222' },
     headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#222' },
     card: {

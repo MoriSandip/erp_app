@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Pressable } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, Modal, Pressable, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 const dummyDistOrders = [
@@ -20,6 +20,16 @@ const DistOrderScreen = () => {
     const navigation = useNavigation();
     const [modalVisible, setModalVisible] = useState(false);
     const [selectedOrder, setSelectedOrder] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const openModal = (order: any) => {
         setSelectedOrder(order);
@@ -41,60 +51,69 @@ const DistOrderScreen = () => {
                 <View style={{ width: 40 }} />
             </View>
 
-            <FlatList
-                data={dummyDistOrders}
-                keyExtractor={(item) => item.id}
-                contentContainerStyle={{ padding: 16 }}
-                renderItem={({ item }) => (
-                    <TouchableOpacity onPress={() => openModal(item)}>
-                        <View style={styles.card}>
-                            <View style={styles.rowBetween}>
-                                <Text style={styles.orderNo}>{item.orderNo}</Text>
-                                <Text style={[styles.status, { color: statusColors[item.status] || '#222' }]}>{item.status}</Text>
-                            </View>
-                            <Text style={styles.retailer}>{item.distributor}</Text>
-                            <View style={styles.rowBetween}>
-                                <Text style={styles.date}>{item.date}</Text>
-                                <Text style={styles.amount}>₹{item.amount}</Text>
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#1976d2" />
+                    <Text style={styles.loaderText}>Loading distributor stock...</Text>
+                </View>
+            ) : (
+                <>
+                    <FlatList
+                        data={dummyDistOrders}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={{ padding: 16 }}
+                        renderItem={({ item }) => (
+                            <TouchableOpacity onPress={() => openModal(item)}>
+                                <View style={styles.card}>
+                                    <View style={styles.rowBetween}>
+                                        <Text style={styles.orderNo}>{item.orderNo}</Text>
+                                        <Text style={[styles.status, { color: statusColors[item.status] || '#222' }]}>{item.status}</Text>
+                                    </View>
+                                    <Text style={styles.retailer}>{item.distributor}</Text>
+                                    <View style={styles.rowBetween}>
+                                        <Text style={styles.date}>{item.date}</Text>
+                                        <Text style={styles.amount}>₹{item.amount}</Text>
+                                    </View>
+                                </View>
+                            </TouchableOpacity>
+                        )}
+                        ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
+                    />
+
+                    <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={closeModal}>
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                {selectedOrder && (
+                                    <>
+                                        <Text style={styles.modalTitle}>Order Details</Text>
+                                        <Text style={styles.modalLabel}>
+                                            Order No: <Text style={styles.modalValue}>{selectedOrder.orderNo}</Text>
+                                        </Text>
+                                        <Text style={styles.modalLabel}>
+                                            Distributor: <Text style={styles.modalValue}>{selectedOrder.distributor}</Text>
+                                        </Text>
+                                        <Text style={styles.modalLabel}>
+                                            Date: <Text style={styles.modalValue}>{selectedOrder.date}</Text>
+                                        </Text>
+                                        <Text style={styles.modalLabel}>
+                                            Status:{' '}
+                                            <Text style={[styles.modalValue, { color: statusColors[selectedOrder.status] || '#222' }]}>
+                                                {selectedOrder.status}
+                                            </Text>
+                                        </Text>
+                                        <Text style={styles.modalLabel}>
+                                            Amount: <Text style={styles.modalValue}>₹{selectedOrder.amount}</Text>
+                                        </Text>
+                                        <Pressable style={styles.closeBtn} onPress={closeModal}>
+                                            <Text style={styles.closeBtnText}>Close</Text>
+                                        </Pressable>
+                                    </>
+                                )}
                             </View>
                         </View>
-                    </TouchableOpacity>
-                )}
-                ItemSeparatorComponent={() => <View style={{ height: 14 }} />}
-            />
-
-            <Modal visible={modalVisible} transparent animationType="fade" onRequestClose={closeModal}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        {selectedOrder && (
-                            <>
-                                <Text style={styles.modalTitle}>Order Details</Text>
-                                <Text style={styles.modalLabel}>
-                                    Order No: <Text style={styles.modalValue}>{selectedOrder.orderNo}</Text>
-                                </Text>
-                                <Text style={styles.modalLabel}>
-                                    Distributor: <Text style={styles.modalValue}>{selectedOrder.distributor}</Text>
-                                </Text>
-                                <Text style={styles.modalLabel}>
-                                    Date: <Text style={styles.modalValue}>{selectedOrder.date}</Text>
-                                </Text>
-                                <Text style={styles.modalLabel}>
-                                    Status:{' '}
-                                    <Text style={[styles.modalValue, { color: statusColors[selectedOrder.status] || '#222' }]}>
-                                        {selectedOrder.status}
-                                    </Text>
-                                </Text>
-                                <Text style={styles.modalLabel}>
-                                    Amount: <Text style={styles.modalValue}>₹{selectedOrder.amount}</Text>
-                                </Text>
-                                <Pressable style={styles.closeBtn} onPress={closeModal}>
-                                    <Text style={styles.closeBtnText}>Close</Text>
-                                </Pressable>
-                            </>
-                        )}
-                    </View>
-                </View>
-            </Modal>
+                    </Modal>
+                </>
+            )}
         </View>
     );
 };
@@ -110,7 +129,7 @@ const styles = StyleSheet.create({
         borderBottomWidth: 1,
         borderBottomColor: '#e0e0e0',
     },
-    backBtn: { padding: 8 },
+    backBtn: { padding: 0 },
     backIcon: { fontSize: 22, color: '#222' },
     headerTitle: { fontSize: 20, fontWeight: 'bold', color: '#222' },
     card: {
@@ -156,6 +175,18 @@ const styles = StyleSheet.create({
         paddingHorizontal: 24,
     },
     closeBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+    },
 });
 
 export default DistOrderScreen;

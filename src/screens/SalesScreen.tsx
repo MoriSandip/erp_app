@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ScrollView } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ScrollView, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 interface Customer {
@@ -420,7 +420,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
     },
     backBtn: {
-        padding: 8,
+        padding: 0,
     },
     backIcon: {
         fontSize: 22,
@@ -478,10 +478,12 @@ const styles = StyleSheet.create({
     },
     searchInput: {
         height: 48,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 24,
+        borderColor: '#d8d6d6ff',
+        borderRadius: 8,
         paddingHorizontal: 16,
         fontSize: 16,
+        borderWidth: 1,
+        marginHorizontal: 2
     },
     filterContainer: {
         paddingVertical: 8,
@@ -493,7 +495,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         marginHorizontal: 4,
-        borderRadius: 20,
+        borderRadius: 8,
         backgroundColor: '#f5f5f5',
     },
     filterTabActive: {

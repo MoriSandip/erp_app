@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, ScrollView, Modal, Image, Platform, PermissionsAndroid } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, Alert, ScrollView, Modal, Image, Platform, PermissionsAndroid, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 
@@ -19,6 +19,16 @@ const DocumentImportScreen = () => {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [previewModalVisible, setPreviewModalVisible] = useState(false);
     const [selectedDocument, setSelectedDocument] = useState<Document | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const [documents, setDocuments] = useState<Document[]>([
         { id: '1', name: 'Sales_Report_2024.pdf', type: 'PDF', size: '2.5 MB', uploadDate: '2024-01-22', status: 'Completed', category: 'Reports', previewUrl: 'https://via.placeholder.com/300x400/FF6B6B/FFFFFF?text=PDF+Preview' },
@@ -377,138 +387,147 @@ const DocumentImportScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Quick Stats */}
-            <View>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsContainer}>
-                    <View style={[styles.statCard, { borderLeftColor: '#673AB7' }]}>
-                        <Text style={[styles.statValue, { color: '#673AB7' }]}>{totalDocuments}</Text>
-                        <Text style={styles.statLabel}>Total Documents</Text>
-                    </View>
-                    <View style={[styles.statCard, { borderLeftColor: '#4CAF50' }]}>
-                        <Text style={[styles.statValue, { color: '#4CAF50' }]}>{completedDocuments}</Text>
-                        <Text style={styles.statLabel}>Completed</Text>
-                    </View>
-                    <View style={[styles.statCard, { borderLeftColor: '#FF9800' }]}>
-                        <Text style={[styles.statValue, { color: '#FF9800' }]}>
-                            {documents.filter(doc => doc.status === 'Processing').length}
-                        </Text>
-                        <Text style={styles.statLabel}>Processing</Text>
-                    </View>
-                    <View style={[styles.statCard, { borderLeftColor: '#2196F3' }]}>
-                        <Text style={[styles.statValue, { color: '#2196F3' }]}>
-                            {documents.filter(doc => doc.status === 'Uploaded').length}
-                        </Text>
-                        <Text style={styles.statLabel}>Uploaded</Text>
-                    </View>
-                    <View style={[styles.statCard, { borderLeftColor: '#F44336' }]}>
-                        <Text style={[styles.statValue, { color: '#F44336' }]}>
-                            {documents.filter(doc => doc.status === 'Failed').length}
-                        </Text>
-                        <Text style={styles.statLabel}>Failed</Text>
-                    </View>
-                </ScrollView>
-            </View>
-
-            {/* Category Filter */}
-            <View style={styles.filterContainer}>
-                <FlatList
-                    data={categories}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[
-                                styles.filterTab,
-                                selectedCategory === item && styles.filterTabActive
-                            ]}
-                            onPress={() => setSelectedCategory(item)}
-                        >
-                            <Text style={[
-                                styles.filterText,
-                                selectedCategory === item && styles.filterTextActive
-                            ]}>
-                                {item}
-                            </Text>
-                        </TouchableOpacity>
-                    )}
-                    keyExtractor={item => item}
-                />
-            </View>
-
-            {/* Documents List */}
-            <FlatList
-                data={filteredDocuments}
-                renderItem={renderDocumentItem}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-            />
-
-            {/* Import Instructions */}
-            <View style={styles.instructionsCard}>
-                <Text style={styles.instructionsTitle}>📄 Import Instructions</Text>
-                <View style={styles.instructionItem}>
-                    <Text style={styles.instructionText}>• Supported formats: PDF, Excel, Word, CSV, Images</Text>
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#673AB7" />
+                    <Text style={styles.loaderText}>Loading documents...</Text>
                 </View>
-                <View style={styles.instructionItem}>
-                    <Text style={styles.instructionText}>• Maximum file size: 10 MB per document</Text>
-                </View>
-                <View style={styles.instructionItem}>
-                    <Text style={styles.instructionText}>• Documents are automatically categorized</Text>
-                </View>
-                <View style={styles.instructionItem}>
-                    <Text style={styles.instructionText}>• Processing time depends on file size</Text>
-                </View>
-            </View>
-
-            {/* Preview Modal */}
-            <Modal
-                visible={previewModalVisible}
-                transparent={true}
-                animationType="fade"
-                onRequestClose={() => setPreviewModalVisible(false)}
-            >
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <View style={styles.modalHeader}>
-                            <Text style={styles.modalTitle}>
-                                {selectedDocument?.name}
-                            </Text>
-                            <TouchableOpacity
-                                style={styles.closeButton}
-                                onPress={() => setPreviewModalVisible(false)}
-                            >
-                                <Text style={styles.closeButtonText}>✕</Text>
-                            </TouchableOpacity>
-                        </View>
-
-                        {selectedDocument?.previewUrl && (
-                            <View style={styles.previewContainer}>
-                                <Image
-                                    source={{ uri: selectedDocument.previewUrl }}
-                                    style={styles.previewImage}
-                                    resizeMode="contain"
-                                />
+            ) : (
+                <>
+                    {/* Quick Stats */}
+                    <View>
+                        <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.statsContainer}>
+                            <View style={[styles.statCard, { borderLeftColor: '#673AB7' }]}>
+                                <Text style={[styles.statValue, { color: '#673AB7' }]}>{totalDocuments}</Text>
+                                <Text style={styles.statLabel}>Total Documents</Text>
                             </View>
-                        )}
+                            <View style={[styles.statCard, { borderLeftColor: '#4CAF50' }]}>
+                                <Text style={[styles.statValue, { color: '#4CAF50' }]}>{completedDocuments}</Text>
+                                <Text style={styles.statLabel}>Completed</Text>
+                            </View>
+                            <View style={[styles.statCard, { borderLeftColor: '#FF9800' }]}>
+                                <Text style={[styles.statValue, { color: '#FF9800' }]}>
+                                    {documents.filter(doc => doc.status === 'Processing').length}
+                                </Text>
+                                <Text style={styles.statLabel}>Processing</Text>
+                            </View>
+                            <View style={[styles.statCard, { borderLeftColor: '#2196F3' }]}>
+                                <Text style={[styles.statValue, { color: '#2196F3' }]}>
+                                    {documents.filter(doc => doc.status === 'Uploaded').length}
+                                </Text>
+                                <Text style={styles.statLabel}>Uploaded</Text>
+                            </View>
+                            <View style={[styles.statCard, { borderLeftColor: '#F44336' }]}>
+                                <Text style={[styles.statValue, { color: '#F44336' }]}>
+                                    {documents.filter(doc => doc.status === 'Failed').length}
+                                </Text>
+                                <Text style={styles.statLabel}>Failed</Text>
+                            </View>
+                        </ScrollView>
+                    </View>
 
-                        <View style={styles.modalFooter}>
-                            <Text style={styles.modalInfo}>
-                                Type: {selectedDocument?.type} • Size: {selectedDocument?.size}
-                            </Text>
-                            <TouchableOpacity
-                                style={styles.downloadButton}
-                                onPress={() => {
-                                    Alert.alert('Download', 'Document download started');
-                                    setPreviewModalVisible(false);
-                                }}
-                            >
-                                <Text style={styles.downloadButtonText}>Download</Text>
-                            </TouchableOpacity>
+                    {/* Category Filter */}
+                    <View style={styles.filterContainer}>
+                        <FlatList
+                            data={categories}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[
+                                        styles.filterTab,
+                                        selectedCategory === item && styles.filterTabActive
+                                    ]}
+                                    onPress={() => setSelectedCategory(item)}
+                                >
+                                    <Text style={[
+                                        styles.filterText,
+                                        selectedCategory === item && styles.filterTextActive
+                                    ]}>
+                                        {item}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                            keyExtractor={item => item}
+                        />
+                    </View>
+
+                    {/* Documents List */}
+                    <FlatList
+                        data={filteredDocuments}
+                        renderItem={renderDocumentItem}
+                        keyExtractor={item => item.id}
+                        contentContainerStyle={styles.listContainer}
+                        showsVerticalScrollIndicator={false}
+                    />
+
+                    {/* Import Instructions */}
+                    <View style={styles.instructionsCard}>
+                        <Text style={styles.instructionsTitle}>📄 Import Instructions</Text>
+                        <View style={styles.instructionItem}>
+                            <Text style={styles.instructionText}>• Supported formats: PDF, Excel, Word, CSV, Images</Text>
+                        </View>
+                        <View style={styles.instructionItem}>
+                            <Text style={styles.instructionText}>• Maximum file size: 10 MB per document</Text>
+                        </View>
+                        <View style={styles.instructionItem}>
+                            <Text style={styles.instructionText}>• Documents are automatically categorized</Text>
+                        </View>
+                        <View style={styles.instructionItem}>
+                            <Text style={styles.instructionText}>• Processing time depends on file size</Text>
                         </View>
                     </View>
-                </View>
-            </Modal>
+
+                    {/* Preview Modal */}
+                    <Modal
+                        visible={previewModalVisible}
+                        transparent={true}
+                        animationType="fade"
+                        onRequestClose={() => setPreviewModalVisible(false)}
+                    >
+                        <View style={styles.modalOverlay}>
+                            <View style={styles.modalContent}>
+                                <View style={styles.modalHeader}>
+                                    <Text style={styles.modalTitle}>
+                                        {selectedDocument?.name}
+                                    </Text>
+                                    <TouchableOpacity
+                                        style={styles.closeButton}
+                                        onPress={() => setPreviewModalVisible(false)}
+                                    >
+                                        <Text style={styles.closeButtonText}>✕</Text>
+                                    </TouchableOpacity>
+                                </View>
+
+                                {selectedDocument?.previewUrl && (
+                                    <View style={styles.previewContainer}>
+                                        <Image
+                                            source={{ uri: selectedDocument.previewUrl }}
+                                            style={styles.previewImage}
+                                            resizeMode="contain"
+                                        />
+                                    </View>
+                                )}
+
+                                <View style={styles.modalFooter}>
+                                    <Text style={styles.modalInfo}>
+                                        Type: {selectedDocument?.type} • Size: {selectedDocument?.size}
+                                    </Text>
+                                    <TouchableOpacity
+                                        style={styles.downloadButton}
+                                        onPress={() => {
+                                            Alert.alert('Download', 'Document download started');
+                                            setPreviewModalVisible(false);
+                                        }}
+                                    >
+                                        <Text style={styles.downloadButtonText}>Download</Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </View>
+                    </Modal>
+                </>
+            )}
         </View>
     );
 };
@@ -528,7 +547,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
     },
     backBtn: {
-        padding: 8,
+        padding: 0,
     },
     backIcon: {
         fontSize: 22,
@@ -549,6 +568,18 @@ const styles = StyleSheet.create({
     },
     uploadIcon: {
         fontSize: 20,
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
     },
     statsContainer: {
         padding: 16,
@@ -588,7 +619,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         marginHorizontal: 4,
-        borderRadius: 20,
+        borderRadius: 8,
         backgroundColor: '#f5f5f5',
     },
     filterTabActive: {

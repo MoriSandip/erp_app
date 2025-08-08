@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, TextInput, Alert, ActivityIndicator } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
 interface InventoryItem {
@@ -16,6 +16,16 @@ const InventoryScreen = () => {
     const navigation = useNavigation();
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedFilter, setSelectedFilter] = useState('All');
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const [inventoryItems, setInventoryItems] = useState<InventoryItem[]>([
         { id: '1', name: 'Laptop Dell XPS 13', sku: 'LAP-DELL-XPS13', category: 'Electronics', quantity: 15, price: 1299.99, status: 'In Stock' },
@@ -129,83 +139,92 @@ const InventoryScreen = () => {
                 </TouchableOpacity>
             </View>
 
-            {/* Search Bar */}
-            <View style={styles.searchContainer}>
-                <TextInput
-                    style={styles.searchInput}
-                    placeholder="Search inventory..."
-                    value={searchQuery}
-                    onChangeText={setSearchQuery}
-                />
-            </View>
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#673AB7" />
+                    <Text style={styles.loaderText}>Loading inventory data...</Text>
+                </View>
+            ) : (
+                <>
+                    {/* Search Bar */}
+                    <View style={styles.searchContainer}>
+                        <TextInput
+                            style={styles.searchInput}
+                            placeholder="Search inventory..."
+                            value={searchQuery}
+                            onChangeText={setSearchQuery}
+                        />
+                    </View>
 
-            {/* Filter Tabs */}
-            <View style={styles.filterContainer}>
-                <FlatList
-                    data={filters}
-                    horizontal
-                    showsHorizontalScrollIndicator={false}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[
-                                styles.filterTab,
-                                selectedFilter === item && styles.filterTabActive
-                            ]}
-                            onPress={() => setSelectedFilter(item)}
-                        >
-                            <Text style={[
-                                styles.filterText,
-                                selectedFilter === item && styles.filterTextActive
-                            ]}>
-                                {item}
+                    {/* Filter Tabs */}
+                    <View style={styles.filterContainer}>
+                        <FlatList
+                            data={filters}
+                            horizontal
+                            showsHorizontalScrollIndicator={false}
+                            renderItem={({ item }) => (
+                                <TouchableOpacity
+                                    style={[
+                                        styles.filterTab,
+                                        selectedFilter === item && styles.filterTabActive
+                                    ]}
+                                    onPress={() => setSelectedFilter(item)}
+                                >
+                                    <Text style={[
+                                        styles.filterText,
+                                        selectedFilter === item && styles.filterTextActive
+                                    ]}>
+                                        {item}
+                                    </Text>
+                                </TouchableOpacity>
+                            )}
+                            keyExtractor={item => item}
+                        />
+                    </View>
+
+                    {/* Inventory List */}
+                    <FlatList
+                        data={filteredItems}
+                        renderItem={renderInventoryItem}
+                        keyExtractor={item => item.id}
+                        contentContainerStyle={styles.listContainer}
+                        showsVerticalScrollIndicator={false}
+                    />
+
+                    {/* Summary Card */}
+                    <View style={styles.summaryCard}>
+                        <Text style={styles.summaryTitle}>📦 Inventory Summary</Text>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>Total Items:</Text>
+                            <Text style={styles.summaryValue}>{inventoryItems.length}</Text>
+                        </View>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>In Stock:</Text>
+                            <Text style={styles.summaryValue}>
+                                {inventoryItems.filter(item => item.status === 'In Stock').length}
                             </Text>
-                        </TouchableOpacity>
-                    )}
-                    keyExtractor={item => item}
-                />
-            </View>
-
-            {/* Inventory List */}
-            <FlatList
-                data={filteredItems}
-                renderItem={renderInventoryItem}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.listContainer}
-                showsVerticalScrollIndicator={false}
-            />
-
-            {/* Summary Card */}
-            <View style={styles.summaryCard}>
-                <Text style={styles.summaryTitle}>📦 Inventory Summary</Text>
-                <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Total Items:</Text>
-                    <Text style={styles.summaryValue}>{inventoryItems.length}</Text>
-                </View>
-                <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>In Stock:</Text>
-                    <Text style={styles.summaryValue}>
-                        {inventoryItems.filter(item => item.status === 'In Stock').length}
-                    </Text>
-                </View>
-                <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Low Stock:</Text>
-                    <Text style={styles.summaryValue}>
-                        {inventoryItems.filter(item => item.status === 'Low Stock').length}
-                    </Text>
-                </View>
-                <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Out of Stock:</Text>
-                    <Text style={styles.summaryValue}>
-                        {inventoryItems.filter(item => item.status === 'Out of Stock').length}
-                    </Text>
-                </View>
-                <View style={styles.summaryRow}>
-                    <Text style={styles.summaryLabel}>Total Value:</Text>
-                    <Text style={styles.summaryValue}>
-                        ${inventoryItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
-                    </Text>
-                </View>
-            </View>
+                        </View>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>Low Stock:</Text>
+                            <Text style={styles.summaryValue}>
+                                {inventoryItems.filter(item => item.status === 'Low Stock').length}
+                            </Text>
+                        </View>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>Out of Stock:</Text>
+                            <Text style={styles.summaryValue}>
+                                {inventoryItems.filter(item => item.status === 'Out of Stock').length}
+                            </Text>
+                        </View>
+                        <View style={styles.summaryRow}>
+                            <Text style={styles.summaryLabel}>Total Value:</Text>
+                            <Text style={styles.summaryValue}>
+                                ${inventoryItems.reduce((sum, item) => sum + (item.price * item.quantity), 0).toFixed(2)}
+                            </Text>
+                        </View>
+                    </View>
+                </>
+            )}
         </View>
     );
 };
@@ -225,7 +244,7 @@ const styles = StyleSheet.create({
         borderBottomColor: '#e0e0e0',
     },
     backBtn: {
-        padding: 8,
+        padding: 0,
     },
     backIcon: {
         fontSize: 22,
@@ -249,16 +268,30 @@ const styles = StyleSheet.create({
         color: '#fff',
         fontWeight: 'bold',
     },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
+    },
     searchContainer: {
-        padding: 16,
+        padding: 8,
         backgroundColor: '#fff',
     },
     searchInput: {
         height: 48,
-        backgroundColor: '#f5f5f5',
-        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: '#d8d6d6ff',
+        borderRadius: 8,
         paddingHorizontal: 16,
         fontSize: 16,
+        marginHorizontal: 12
     },
     filterContainer: {
         paddingVertical: 8,
@@ -270,7 +303,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: 16,
         paddingVertical: 8,
         marginHorizontal: 4,
-        borderRadius: 20,
+        borderRadius: 8,
         backgroundColor: '#f5f5f5',
     },
     filterTabActive: {

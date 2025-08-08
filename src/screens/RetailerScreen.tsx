@@ -1,5 +1,5 @@
 import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     View,
     Text,
@@ -9,6 +9,7 @@ import {
     Image,
     StyleSheet,
     SafeAreaView,
+    ActivityIndicator,
 } from 'react-native';
 
 const sampleRetailers = [
@@ -37,6 +38,16 @@ const RetailerScreen = () => {
 
     const [selectedRetailer, setSelectedRetailer] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        // Show loader for 2.5 seconds when component mounts
+        const timer = setTimeout(() => {
+            setIsLoading(false);
+        }, 2500);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     const openModal = (retailer: any) => {
         setSelectedRetailer(retailer);
@@ -70,12 +81,19 @@ const RetailerScreen = () => {
                 <View style={{ width: 40 }} />
             </View>
 
-            <FlatList
-                data={sampleRetailers}
-                keyExtractor={(item) => item.id}
-                renderItem={renderRetailerItem}
-                contentContainerStyle={{ paddingBottom: 20 }}
-            />
+            {isLoading ? (
+                <View style={styles.loaderContainer}>
+                    <ActivityIndicator size="large" color="#673AB7" />
+                    <Text style={styles.loaderText}>Loading retailers...</Text>
+                </View>
+            ) : (
+                <FlatList
+                    data={sampleRetailers}
+                    keyExtractor={(item) => item.id}
+                    renderItem={renderRetailerItem}
+                    contentContainerStyle={{ paddingBottom: 20 }}
+                />
+            )}
 
             <Modal
                 visible={modalVisible}
@@ -116,7 +134,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#FAFAFA',
     },
-    backBtn: { padding: 8, marginRight: 8 },
+    backBtn: { padding: 0, marginRight: 8 },
     backIcon: { fontSize: 20, color: '#222' },
 
     header: {
@@ -207,5 +225,17 @@ const styles = StyleSheet.create({
     closeX: {
         fontSize: 26,
         color: '#999',
+    },
+    loaderContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        backgroundColor: '#fff',
+    },
+    loaderText: {
+        marginTop: 16,
+        fontSize: 16,
+        color: '#666',
+        textAlign: 'center',
     },
 });
